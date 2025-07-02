@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        .btn {
+        height: 3rem;
+        width: 3rem;
+        border-radius: 0.5rem; 
+        font-weight: 600; 
+        }
+    </style>
+</head>
+<body class="bg-white flex items-center justify-center min-h-screen">
+    <div class="bg-black p-6 rounded-lg shadow-lg">
+    
+        <div id="display" class="bg-blue-100 w-full h-16 text-black text-2xl text-right p-4 rounded mb-4">
+            0
+        </div>
+
+
+        <div class="grid grid-cols-4 gap-2">
+            <!-- clear and opration -->
+            <button class="btn bg-red-500 hover:bg-red-600 text-white" onclick="clearDisplay()">C</button>
+            <button class="btn bg-gray-500 hover:bg-gray-600 text-white" onclick="deleteLast()">⌫</button>
+            <button class="btn bg-blue-500 hover:bg-blue-600 text-white" onclick="appendToDisplay('/'); setOperation('/');">/</button>
+            <button class="btn bg-blue-500 hover:bg-blue-600 text-white" onclick="appendToDisplay('x'); setOperation('*');">x</button>
+
+            <!-- number row 1 -->
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('7')">7</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('8')">8</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('9')">9</button>
+             <button class="btn bg-blue-500 hover:bg-blue-600 text-white" onclick="appendToDisplay('-'); setOperation('-');">-</button>
+
+             <!-- number row 2 -->
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('4')">4</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('5')">5</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('6')">6</button>
+             <button class="btn bg-blue-500 hover:bg-blue-600 text-white" onclick="appendToDisplay('+'); setOperation('+');">+</button>
+
+             <!-- number row 3 -->
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('1')">1</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('2')">2</button>
+             <button class="btn bg-yellow-500 hover:bg-yellow-600" onclick="appendToDisplay('3')">3</button>
+             <button class="btn bg-blue-500 hover:bg-blue-600 text-white" onclick="calculate()">=</button>
+
+            <!-- bottom zero -->
+             <button class="btn bg-yellow-500 hover:bg-yellow-600 col-span-4 w-full" onclick="appendToDisplay('0')">0</button>
+        </div>
+
+    </div>
+</body>
+</html>
+
+<script>
+    // calculator state
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = '';
+    let waitingForNewNumber = false;
+
+    // get display element
+    const display = document.getElementById('display');
+
+    // update display screen
+    function updateDisplay() {
+        display.textContent = currentInput;
+    }
+
+    
+    // function append display
+    function appendToDisplay(value) {
+
+        // jika menyelesaikan kalkulasi/menggunakan operator maka fresh start from 0
+        if (waitingForNewNumber) {
+            currentInput = '';
+            waitingForNewNumber = false;
+        };
+
+        // handle fisrt digit
+        if (currentInput === '0' && value !== '.') {
+            currentInput = value
+        } else {
+            currentInput += value
+        }
+        
+        updateDisplay()
+    }
+
+    function calculate(){
+        if(!operator || !previousInput) return;
+
+        const prev = parseFloat(previousInput);
+        const current = parseFloat(currentInput);
+        let result;
+
+        switch(operator) {
+            case '+':
+                result = prev + current;
+                break;
+            case '-': 
+                result = prev - current;
+                break;
+            case '*':
+                result = prev * current;
+                break;
+            case '/': 
+                if (current === 0){
+                    alert('cannot devide by zero!');
+                    return;
+                }
+                result = prev / current;
+                break;
+            default: 
+                return;
+        }
+
+        currentInput = result.toString()
+        operator = '';
+        previousInput = '';
+        waitingForNewNumber = true;
+        updateDisplay()
+
+    }
+
+    function clearDisplay() {
+        currentInput = '0';
+        previousInput = '';
+        operator = '';
+        waitingForNewNumber = false;
+        updateDisplay()
+    }
+
+    function deleteLast() {
+        if (currentInput.length > 1) {
+            currentInput = currentInput.slice(0, -1)
+        } else {
+            currentInput = '0';
+        }
+        updateDisplay()
+    }
+
+    function setOperation(op) {
+    // If we already have an operation pending, calculate it first
+    if (operator && !waitingForNewNumber) {
+        calculate();
+    }
+    
+    // Store the current number and operation
+    previousInput = currentInput;
+    operator = op;
+    waitingForNewNumber = true;
+}
+</script>
